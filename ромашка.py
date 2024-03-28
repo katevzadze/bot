@@ -11,8 +11,6 @@ TG_TOKEN = os.getenv('TG_TOKEN')
 # сохраняем инициализированный объект бота
 bot = TeleBot(TG_TOKEN)
 
-# хранилище данных пользователей
-tasks: list[list[str]] = []
 
 # Task class
 
@@ -23,8 +21,12 @@ class Task:
         self.description = description
         self.time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
         self.tags = []
+
     def add_tag(self, tag):
         self.tags.append(tag)
+
+
+tasks: list[Task] = []
 
 
 @bot.message_handler(commands=['start', 'help'])
@@ -49,12 +51,12 @@ def add_task(message: Message) -> None:
     """Обрабатывает команду добавления задачи"""
     user_id: int = message.chat.id
     text: str = message.text[9:].strip()  # берем слайс после "/add_task"
-    title = message.text.split(" ", 1)[1]
-    description = message.text.split(" ", 2)[2]
     if not text:
         bot.send_message(user_id, 'Вы не ввели текст задачи. Памятка: /help')
         return
     else:
+        title = message.text.split(" ", 1)[1]
+        description = message.text.split(" ", 2)[2]
         tags = message.text.split("/tag")[1]
         tags = tags.split()
         task = Task(title, description)
@@ -75,10 +77,10 @@ def show_tasks(message: Message) -> None:
     for i, task in enumerate(tasks, start=1):
         message_text += f"{i+1}. {task.title}\n{task.description}\n\n"
         if task.tags:
-          message_text += "Теги:\n"
-          for tag in task.tags:
-             message_text += f"- {tag}\n"
-    
+            message_text += "Теги:\n"
+            for tag in task.tags:
+                message_text += f"- {tag}\n"
+
     message_text += "\n"
 
     bot.send_message(user_id, message_text)
