@@ -36,7 +36,7 @@ def send_welcome(message: Message) -> None:
     """
     welcome_text = """
     Привет! Я бот для управления задачами. Вот как со мной работать:
-    - Чтобы добавить задачу, отправьте /add_task Номер. Название. Описание. Тег (при необходимости)
+    - Чтобы добавить задачу, отправьте /add_task Номер. Название. Описание. Тег (при необходимости). Поля разделяются пробелами, точку ставить необязательно.
     - Чтобы посмотреть ваши задачи, отправьте /show_tasks
     - Чтобы удалить задачу, отправьте /delete_task Номер задачи
     - Чтобы удалить все задачи, отправьте /delete_all_tasks
@@ -57,16 +57,22 @@ def add_task(message: Message) -> None:
     else:
         title = message.text.split(" ", 1)[1]
         description = message.text.split(" ", 2)[2]
-        tags = message.text.split("/tag")[1]
-        tags = tags.split()
-        task = Task(title, description)
-        for tag in tags:
-            task.add_tag(tag)
-        time_message = f'{task.time} - {task}'
-        bot.send_message(user_id, 'Задача добавлена!')
+        if '/tag' not in message.text:
+            task = Task(title, description)
+            time_message = f'{task.time} - {task}'
+            bot.send_message(user_id, 'Задача добавлена!')
+            tasks.append(time_message)
+        else:
+            tags = message.text.split("/tag")[1]
+            tags = tags.split()
+            task = Task(title, description)
+            for tag in tags:
+                task.add_tag(tag)
+            time_message = f'{task.time} - {task}'
+            bot.send_message(user_id, 'Задача добавлена!')
 
-        tasks_parts = time_message.split('.')
-        tasks.append(tasks_parts)
+            tasks_parts = time_message.split('.')
+            tasks.append(tasks_parts)
 
 
 @bot.message_handler(commands=['show_tasks'])
