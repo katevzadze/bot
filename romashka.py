@@ -1,4 +1,4 @@
-  rom telebot import TeleBot
+from telebot import TeleBot
 from telebot.types import Message
 from dotenv import load_dotenv
 import os
@@ -21,6 +21,9 @@ class Task:
         self.description = description
         self.time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
         self.tags = []
+
+    def __str__(self):
+        return f'{self.title} - {self.time}'
 
     def add_tag(self, tag):
         self.tags.append(tag)
@@ -55,8 +58,9 @@ def add_task(message: Message) -> None:
         bot.send_message(user_id, 'Вы не ввели текст задачи. Памятка: /help')
         return
     else:
-        title = message.text.split(" ", 1)[1]
-        description = message.text.split(" ", 2)[2]
+        fields = text.split()
+        title = fields[0]
+        description = fields[1]
         task = Task(title, description)
         if '/tag' not in message.text:
             tasks.append(task)
@@ -114,3 +118,6 @@ def delete_all_tasks(message: Message) -> None:
 
 if __name__ == '__main__':
     bot.infinity_polling()
+
+
+
